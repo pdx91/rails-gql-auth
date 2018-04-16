@@ -4,14 +4,22 @@ class GraphqlController < ApplicationController
     query = params[:query]
     operation_name = params[:operationName]
     context = {
-      # Query context goes here, for example:
-      # current_user: current_user,
+      warden: warden,
+      viewer: viewer
     }
     result = RailsGqlAuthSchema.execute(query, variables: variables, context: context, operation_name: operation_name)
     render json: result
   end
 
   private
+
+  def warden
+    request.env['warden']
+  end
+
+  def viewer
+    warden.user || Viewer.new
+  end
 
   # Handle form data, JSON body, or a blank value
   def ensure_hash(ambiguous_param)
