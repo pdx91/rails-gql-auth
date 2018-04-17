@@ -14,10 +14,15 @@ class Resolvers::LoginUser < GraphQL::Function
     return unless user
     return unless user.authenticate(args[:password])
 
-    rsa_private = OpenSSL::PKey::RSA.generate 2048
-    rsa_public = rsa_private.public_key
+    # rsa_private = OpenSSL::PKey::RSA.generate 2048
+    # rsa_public = rsa_private.public_key
 
-    token = JWT.encode user, rsa_private, 'RS256'
+    # token = JWT.encode payload, nil, 'none'
+    token = JWT.encode(
+      {user_id: user.id},
+      Rails.application.credentials.secret_key_base,
+      'HS256'
+    )
 
     OpenStruct.new({
       user: user,
